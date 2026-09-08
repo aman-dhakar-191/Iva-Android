@@ -1,0 +1,24 @@
+<resources>
+    <string name="app_name">Jarvis</string>
+    <string name="settings_title">Settings</string>
+    <string name="gateway_url_label">Gateway base URL</string>
+    <string name="gateway_url_hint">https://jarvis.example.com</string>
+    <string name="gateway_url_help">The Jarvis gateway serves the chat page and is also its WebSocket endpoint. Enter its https:// base URL — the page derives its own wss:// address from it.</string>
+    <string name="save">Save</string>
+    <string name="keep_session_alive">Keep the session alive in the background</string>
+    <string name="keep_session_alive_summary">Runs an ongoing notification so the WebSocket and microphone survive when Jarvis is not in the foreground.</string>
+    <string name="battery_optimization">Disable battery optimisation</string>
+    <string name="invalid_url">Enter an http:// or https:// URL.</string>
+    <string name="saved">Saved</string>
+    <string name="notification_channel_session">Jarvis session</string>
+    <string name="notification_channel_session_desc">Shown while the Jarvis connection is kept alive in the background.</string>
+    <string name="notification_channel_bridge">Jarvis alerts</string>
+    <string name="notification_channel_bridge_desc">Notifications raised by the Jarvis web app through the native bridge.</string>
+    <string name="session_notification_title">Jarvis is listening</string>
+    <string name="session_notification_text">Connection and microphone session kept alive.</string>
+    <string name="stop">Stop</string>
+    <string name="error_no_url">No gateway configured yet.</string>
+    <string name="error_load">Could not reach the gateway.</string>
+    <string name="retry">Retry</string>
+    <string name="mic_denied">Microphone permission is required for voice.</string>
+</resources>

@@ -1,0 +1,79 @@
+name: CI
+
+on:
+  push:
+    branches: ['**']
+  pull_request:
+  workflow_dispatch:
+
+env:
+  GRADLE_OPTS: -Dorg.gradle.console=plain
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    name: Debug build & lint
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v4
+
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@v3
+        with:
+          packages: 'platform-tools platforms;android-35 build-tools;35.0.0'
+
+      - name: Assemble debug
+        run: ./gradlew assembleDebug --no-daemon --stacktrace
+
+      - name: Unit tests
+        run: ./gradlew testDebugUnitTest --no-daemon --stacktrace
+
+      - name: Lint
+        run: ./gradlew lintDebug --no-daemon
+
+      - name: Upload debug APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: jarvis-debug-apk
+          path: app/build/outputs/apk/debug/*.apk
+          if-no-files-found: error
+
+      # The raw XML is mostly warnings and explanation prose; print only what
+      # actually failed the build.
+      - name: Show lint errors
+        if: failure()
+        run: |
+          report=app/build/reports/lint-results-debug.xml
+          test -f "$report" || { echo "no lint report at $report"; exit 0; }
+          python3 - "$report" <<'EOF'
+          import sys, xml.etree.ElementTree as ET
+          issues = ET.parse(sys.argv[1]).getroot()
+          failing = [i for i in issues if i.get('severity') in ('Fatal', 'Error')]
+          if not failing:
+              print('No Fatal/Error findings in the report.')
+          for i in failing:
+              loc = i.find('location')
+              where = f"{loc.get('file')}:{loc.get('line')}" if loc is not None else '?'
+              print(f"[{i.get('severity')}] {i.get('id')}  {where}\n    {i.get('message')}\n")
+          EOF
+
+      - name: Upload lint report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: lint-report
+          path: app/build/reports/lint-results-debug.html
+          if-no-files-found: ignore
