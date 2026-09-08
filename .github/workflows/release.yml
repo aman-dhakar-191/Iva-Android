@@ -12,6 +12,9 @@ on:
         description: 'Existing tag to build and attach artifacts to'
         required: true
 
+env:
+  GRADLE_OPTS: -Dorg.gradle.console=plain
+
 permissions:
   contents: write
 
@@ -19,6 +22,7 @@ jobs:
   release:
     name: Signed release build
     runs-on: ubuntu-latest
+    timeout-minutes: 45
     steps:
       - uses: actions/checkout@v4
         with:
@@ -32,6 +36,11 @@ jobs:
 
       - name: Set up Gradle
         uses: gradle/actions/setup-gradle@v4
+
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@v3
+        with:
+          packages: 'platform-tools platforms;android-35 build-tools;35.0.0'
 
       # The keystore is stored as base64 in KEYSTORE_BASE64 because Actions
       # secrets are text-only. It is written outside the workspace so it can
@@ -56,7 +65,7 @@ jobs:
           # Optional: bakes a default gateway into the shipped build. When unset
           # the app asks for the gateway URL on first run instead.
           ORG_GRADLE_PROJECT_jarvisGatewayUrl: ${{ vars.JARVIS_GATEWAY_URL }}
-        run: ./gradlew assembleRelease bundleRelease --stacktrace
+        run: ./gradlew assembleRelease bundleRelease --no-daemon --stacktrace
 
       - name: Verify the APK really is signed
         run: |
