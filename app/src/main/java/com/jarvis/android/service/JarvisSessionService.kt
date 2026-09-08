@@ -53,10 +53,14 @@ class JarvisSessionService : Service() {
             return START_NOT_STICKY
         }
 
-        // The typed overload only exists from Q onwards, and passing the type
-        // without the permission is what crashes the process on 14+ — start()
-        // gates on it, but the grant can be revoked while we are running.
-        val type = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q && hasMicPermission(this)) {
+        // A microphone-typed service may not start without the grant on 14+, and
+        // start() gates on it — but it can be revoked while we are running, and
+        // there is nothing left to keep alive if it was.
+        if (!hasMicPermission(this)) {
+            stopSelf()
+            return START_NOT_STICKY
+        }
+        val type = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             ServiceInfo.FOREGROUND_SERVICE_TYPE_MICROPHONE
         } else {
             0
@@ -104,7 +108,7 @@ class JarvisSessionService : Service() {
             .setContentTitle(getString(R.string.session_notification_title))
             .setContentText(getString(R.string.session_notification_text))
             .setContentIntent(contentIntent)
-            .addAction(0, getString(R.string.stop), stopIntent)
+            .addAction(R.drawable.ic_notification, getString(R.string.stop), stopIntent)
             .setOngoing(true)
             .setSilent(true)
             .setCategory(NotificationCompat.CATEGORY_SERVICE)
@@ -141,11 +145,7 @@ class JarvisSessionService : Service() {
          */
         fun start(context: Context): Boolean {
             if (!hasMicPermission(context)) return false
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                context.startForegroundService(Intent(context, JarvisSessionService::class.java))
-            } else {
-                context.startService(Intent(context, JarvisSessionService::class.java))
-            }
+            context.startForegroundService(Intent(context, JarvisSessionService::class.java))
             return true
         }
 

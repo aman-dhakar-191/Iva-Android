@@ -5,7 +5,6 @@
     <string name="gateway_url_hint">https://jarvis.example.com</string>
     <string name="gateway_url_help">The Jarvis gateway serves the chat page and is also its WebSocket endpoint. Enter its https:// base URL — the page derives its own wss:// address from it.</string>
     <string name="save">Save</string>
-    <string name="reload">Reload</string>
     <string name="keep_session_alive">Keep the session alive in the background</string>
     <string name="keep_session_alive_summary">Runs an ongoing notification so the WebSocket and microphone survive when Jarvis is not in the foreground.</string>
     <string name="battery_optimization">Disable battery optimisation</string>

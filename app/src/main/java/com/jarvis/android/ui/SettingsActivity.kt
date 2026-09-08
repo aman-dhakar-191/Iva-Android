@@ -3,7 +3,6 @@ package com.jarvis.android.ui
 import android.annotation.SuppressLint
 import android.content.Intent
 import android.net.Uri
-import android.os.Build
 import android.os.Bundle
 import android.os.PowerManager
 import android.provider.Settings as AndroidSettings
@@ -73,14 +72,10 @@ class SettingsActivity : AppCompatActivity() {
     @SuppressLint("BatteryLife")
     private fun requestBatteryExemption() {
         if (isIgnoringBatteryOptimizations()) return
-        val intent = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            Intent(
-                AndroidSettings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS,
-                Uri.parse("package:$packageName")
-            )
-        } else {
-            Intent(AndroidSettings.ACTION_SETTINGS)
-        }
+        val intent = Intent(
+            AndroidSettings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS,
+            Uri.parse("package:$packageName")
+        )
         try {
             startActivity(intent)
         } catch (_: Exception) {

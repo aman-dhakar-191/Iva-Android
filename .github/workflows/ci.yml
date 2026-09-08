@@ -51,10 +51,24 @@ jobs:
           path: app/build/outputs/apk/debug/*.apk
           if-no-files-found: error
 
-      - name: Show lint findings
+      # The raw XML is mostly warnings and explanation prose; print only what
+      # actually failed the build.
+      - name: Show lint errors
         if: failure()
         run: |
-          test -f app/build/reports/lint-results-debug.xml && cat app/build/reports/lint-results-debug.xml
+          report=app/build/reports/lint-results-debug.xml
+          test -f "$report" || { echo "no lint report at $report"; exit 0; }
+          python3 - "$report" <<'EOF'
+          import sys, xml.etree.ElementTree as ET
+          issues = ET.parse(sys.argv[1]).getroot()
+          failing = [i for i in issues if i.get('severity') in ('Fatal', 'Error')]
+          if not failing:
+              print('No Fatal/Error findings in the report.')
+          for i in failing:
+              loc = i.find('location')
+              where = f"{loc.get('file')}:{loc.get('line')}" if loc is not None else '?'
+              print(f"[{i.get('severity')}] {i.get('id')}  {where}\n    {i.get('message')}\n")
+          EOF
 
       - name: Upload lint report
         if: always()

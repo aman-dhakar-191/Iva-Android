@@ -3,7 +3,6 @@ package com.jarvis.android
 import android.app.Application
 import android.app.NotificationChannel
 import android.app.NotificationManager
-import android.os.Build
 import androidx.core.content.getSystemService
 
 class JarvisApp : Application() {
@@ -14,7 +13,6 @@ class JarvisApp : Application() {
     }
 
     private fun createNotificationChannels() {
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) return
         val manager = getSystemService<NotificationManager>() ?: return
 
         manager.createNotificationChannel(
