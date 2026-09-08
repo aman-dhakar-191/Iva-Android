@@ -96,6 +96,10 @@ android {
         // that a WebView-hosting app inevitably trips.
         warningsAsErrors = false
         abortOnError = true
+        // Printed to stdout so a CI failure shows the findings themselves rather
+        // than only a Gradle stack trace.
+        textReport = true
+        xmlReport = true
         disable += setOf("GradleDependency", "AndroidGradlePluginVersion", "OldTargetApi")
     }
 
